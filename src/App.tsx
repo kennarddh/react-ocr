@@ -30,9 +30,13 @@ const App: FC = () => {
 	const OnSubmit = useCallback(async () => {
 		if (!SelectedFile) return
 
-		TesseractScheduler.addJob('recognize', SelectedFile).then(x =>
-			SetLog(prev => `${prev}\n${x.jobId}: ${x.data.text}`),
-		)
+		TesseractScheduler.addJob('recognize', SelectedFile).then(x => {
+			const nik = x.data.text
+				.toLowerCase()
+				.match(/nik *: *(\d{16})(?!\d)/i)?.[1]
+
+			SetLog(prev => `${prev}\n${x.jobId}: ${x.data.text}\nNIK: ${nik}`)
+		})
 	}, [SelectedFile])
 
 	useEffect(() => {

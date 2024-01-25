@@ -13,7 +13,7 @@ export const RemoveLogger = (logger: (data: LoggerMessage) => void) => {
 const TesseractScheduler = Tesseract.createScheduler()
 
 const AddWorker = async () => {
-	const worker = await Tesseract.createWorker('eng', OEM.LSTM_ONLY, {
+	const worker = await Tesseract.createWorker('ind', OEM.LSTM_ONLY, {
 		logger: log => {
 			for (const logger of loggers) {
 				logger(log)
