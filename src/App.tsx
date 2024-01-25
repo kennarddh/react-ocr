@@ -1,7 +1,57 @@
-import { FC } from 'react'
+import {
+	ChangeEvent,
+	FC,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react'
 
 const App: FC = () => {
-	return <div></div>
+	const [SelectedFile, SetSelectedFile] = useState<File | null>(null)
+
+	const [Log, SetLog] = useState<string>('')
+
+	const InputRef = useRef<HTMLInputElement>(null)
+
+	const OnFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+		const file = event?.target?.files?.[0] ?? null
+
+		SetSelectedFile(file)
+	}, [])
+
+	const OnSubmit = useCallback(async () => {
+		if (!SelectedFile) return
+
+		const fileBuffer = new Uint8Array(await SelectedFile.arrayBuffer())
+	}, [SelectedFile])
+
+	useEffect(() => {
+		if (!InputRef.current) return
+
+		const dataTransfer = new DataTransfer()
+
+		if (
+			SelectedFile &&
+			(SelectedFile.type === 'image/bmp' ||
+				SelectedFile.type === 'image/webp' ||
+				SelectedFile.type === 'image/pbm' ||
+				SelectedFile.type === 'image/png' ||
+				SelectedFile.type === 'image/jpeg')
+		)
+			dataTransfer.items.add(SelectedFile)
+
+		InputRef.current.files = dataTransfer.files
+	}, [SelectedFile])
+
+	return (
+		<div>
+			<input type='file' onChange={OnFileChange} ref={InputRef} />
+
+			<button onClick={OnSubmit}>Submit</button>
+			<pre>{Log}</pre>
+		</div>
+	)
 }
 
 export default App
