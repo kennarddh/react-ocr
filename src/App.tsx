@@ -7,8 +7,12 @@ import {
 	useState,
 } from 'react'
 
-import TesseractScheduler, { AddLogger, RemoveLogger } from 'TesseractScheduler'
 import { LoggerMessage } from 'tesseract.js'
+
+import TesseractScheduler, {
+	AddLogger,
+	RemoveLogger,
+} from './TesseractScheduler'
 
 const App: FC = () => {
 	const [SelectedFile, SetSelectedFile] = useState<File | null>(null)
