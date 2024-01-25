@@ -37,7 +37,7 @@ const App: FC = () => {
 
 	useEffect(() => {
 		const logger = (log: LoggerMessage) => {
-			SetLog(prev => `${prev}\n${log}`)
+			SetLog(prev => `${prev}\n${JSON.stringify(log)}`)
 		}
 
 		AddLogger(logger)
