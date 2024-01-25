@@ -7,6 +7,9 @@ import {
 	useState,
 } from 'react'
 
+import TesseractScheduler, { AddLogger, RemoveLogger } from 'TesseractScheduler'
+import { LoggerMessage } from 'tesseract.js'
+
 const App: FC = () => {
 	const [SelectedFile, SetSelectedFile] = useState<File | null>(null)
 
@@ -23,8 +26,20 @@ const App: FC = () => {
 	const OnSubmit = useCallback(async () => {
 		if (!SelectedFile) return
 
-		const fileBuffer = new Uint8Array(await SelectedFile.arrayBuffer())
+		TesseractScheduler.addJob('recognize', SelectedFile).then(x =>
+			SetLog(prev => `${prev}\n${x.jobId}: ${x.data.text}`),
+		)
 	}, [SelectedFile])
+
+	useEffect(() => {
+		const logger = (log: LoggerMessage) => {
+			SetLog(prev => `${prev}\n${log}`)
+		}
+
+		AddLogger(logger)
+
+		return () => RemoveLogger(logger)
+	})
 
 	useEffect(() => {
 		if (!InputRef.current) return
@@ -47,7 +62,6 @@ const App: FC = () => {
 	return (
 		<div>
 			<input type='file' onChange={OnFileChange} ref={InputRef} />
-
 			<button onClick={OnSubmit}>Submit</button>
 			<pre>{Log}</pre>
 		</div>
