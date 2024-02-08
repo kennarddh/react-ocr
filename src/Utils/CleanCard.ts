@@ -5,13 +5,14 @@ const CleanCard = (rawImage: cv.Mat): cv.Mat => {
 
 	cv.cvtColor(rawImage, grayscaleImage, cv.COLOR_RGBA2GRAY, 0)
 
-	const thresholdImage = new cv.Mat()
+	// const thresholdImage = new cv.Mat()
 
-	cv.threshold(grayscaleImage, thresholdImage, 140, 255, cv.THRESH_BINARY)
+	// cv.threshold(grayscaleImage, thresholdImage, 140, 255, cv.THRESH_BINARY)
 
-	grayscaleImage.delete()
+	// grayscaleImage.delete()
 
-	return thresholdImage
+	// return thresholdImage
+	return grayscaleImage
 }
 
 export default CleanCard
