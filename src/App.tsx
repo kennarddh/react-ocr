@@ -7,7 +7,12 @@ import {
 	useState,
 } from 'react'
 
+import cv from '@techstark/opencv-js'
 import { LoggerMessage } from 'tesseract.js'
+
+import Canvas from 'Utils/Canvas'
+import CleanCard from 'Utils/CleanCard'
+import ImagePromise from 'Utils/ImagePromise'
 
 import TesseractScheduler, {
 	AddLogger,
@@ -20,6 +25,7 @@ const App: FC = () => {
 	const [Log, SetLog] = useState<string>('')
 
 	const InputRef = useRef<HTMLInputElement>(null)
+	const OutputCanvasRef = useRef<HTMLCanvasElement>(null)
 
 	const OnFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
 		const file = event?.target?.files?.[0] ?? null
@@ -30,7 +36,29 @@ const App: FC = () => {
 	const OnSubmit = useCallback(async () => {
 		if (!SelectedFile) return
 
-		TesseractScheduler.addJob('recognize', SelectedFile).then(x => {
+		const objectURL = URL.createObjectURL(SelectedFile)
+
+		const image = await ImagePromise(objectURL)
+
+		URL.revokeObjectURL(objectURL)
+
+		const canvas = Canvas(image.width, image.height)
+
+		const ctx = canvas.getContext('2d')
+
+		ctx?.drawImage(image, 0, 0)
+
+		const rawImage = cv.imread(canvas)
+
+		const cleanedCard = CleanCard(rawImage)
+
+		cv.imshow(OutputCanvasRef.current!, cleanedCard)
+
+		const outputImageData = await new Promise<Blob>(
+			resolve => OutputCanvasRef.current?.toBlob(blob => resolve(blob!)),
+		)
+
+		TesseractScheduler.addJob('recognize', outputImageData).then(x => {
 			const nik = x.data.text
 				.toLowerCase()
 				.match(/nik *: *(\d{16})(?!\d)/i)?.[1]
@@ -71,6 +99,7 @@ const App: FC = () => {
 		<div>
 			<input type='file' onChange={OnFileChange} ref={InputRef} />
 			<button onClick={OnSubmit}>Submit</button>
+			<canvas ref={OutputCanvasRef}></canvas>
 			<pre>{Log}</pre>
 		</div>
 	)
